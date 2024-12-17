@@ -1,7 +1,6 @@
-import crypto from 'crypto';
-import express from 'express';
-import cors from 'cors';
-import { log } from 'console';
+import crypto from "crypto";
+import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(cors());
@@ -28,27 +27,17 @@ const generateProductId = (function () {
 })();
 
 users[1] = {
-  username: 'admin',
-  password: 'admin',
+  username: "admin",
+  password: "admin",
   role: role.admin,
   id: 1,
-  firstName: 'admin 1',
-  lastName: '1.0.1',
-  nationalCode: '54687174974654502',
-  mobile: '4687675669454',
-};
-users[0] = {
-  username: '0',
-  password: '0',
-  role: role.normal,
-  id: 0,
-  firstName: 'normal 1',
-  lastName: '1.0.1',
-  nationalCode: 'y',
-  mobile: 'th',
+  firstName: "admin 1",
+  lastName: "1.0.1",
+  nationalCode: "0123456789",
+  mobile: "9123456789",
 };
 
-app.post('/api/auth', (req, res) => {
+app.post("/api/auth", (req, res) => {
   for (const userId in users) {
     if (
       users[userId].username === req.body.username &&
@@ -61,38 +50,38 @@ app.post('/api/auth', (req, res) => {
     }
   }
 
-  res.status(400).send('user not found');
+  res.status(400).send("user not found");
 });
 
-app.get('/api/users/current', (req, res) => {
+app.get("/api/users/current", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
   res.json(users[session.userId]);
 });
 
-app.post('/api/users', (req, res) => {
+app.post("/api/users", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
   if (users[session.userId].role !== role.admin) {
-    res.status(403).send('user role must be admin');
+    res.status(403).send("user role must be admin");
     return;
   }
 
@@ -112,20 +101,20 @@ app.post('/api/users', (req, res) => {
   res.json(user);
 });
 
-app.put('/api/users', (req, res) => {
+app.put("/api/users", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
   if (users[session.userId].role !== role.admin) {
-    res.status(403).send('user role must be admin');
+    res.status(403).send("user role must be admin");
     return;
   }
 
@@ -145,15 +134,15 @@ app.put('/api/users', (req, res) => {
   res.json(user);
 });
 
-app.get('/api/users', (req, res) => {
+app.get("/api/users", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
@@ -165,14 +154,14 @@ app.get('/api/users', (req, res) => {
   res.json(users);
 });
 
-app.post('/api/products', (req, res) => {
+app.post("/api/products", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
@@ -183,20 +172,20 @@ app.post('/api/products', (req, res) => {
     weight: req.body.weight,
   };
 
-  product[product.id] = product;
+  products[product.id] = product;
 
   res.json(product);
 });
 
-app.put('/api/products', (req, res) => {
+app.put("/api/products", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
@@ -205,27 +194,85 @@ app.put('/api/products', (req, res) => {
     name: req.body.name,
     code: req.body.code,
     weight: req.body.weight,
-  };
+  };  
 
-  product[product.id] = product;
+  products[product.id] = product;
 
   res.json(product);
 });
 
-app.get('/api/products', (req, res) => {
+app.get("/api/products", (req, res) => {
   if (!req.headers.authorization) {
-    res.status(401).send('authentication is required');
+    res.status(401).send("authentication is required");
     return;
   }
 
   const session = sessions[req.headers.authorization];
   if (!session) {
-    res.status(403).send('session is invalid');
+    res.status(403).send("session is invalid");
     return;
   }
 
   res.json(products);
 });
+
+
+// =========================================================
+
+app.delete("/api/users/:id", (req, res) => {
+  if (!req.headers.authorization) {
+    res.status(401).send("authentication is required");
+    return;
+  }
+
+  const session = sessions[req.headers.authorization];
+  if (!session) {
+    res.status(403).send("session is invalid");
+    return;
+  }
+
+  if (users[session.userId].role !== role.admin) {
+    res.status(403).send("user role must be admin");
+    return;
+  }
+
+  const userId = req.params.id;
+
+  if (!users[userId]) {
+    res.status(404).send("User not found");
+    return;
+  }
+
+  delete users[userId];
+
+  res.json(users);
+});
+
+app.delete("/api/products/:id", (req, res) => {
+  if (!req.headers.authorization) {
+    res.status(401).send("authentication is required");
+    return;
+  }
+
+  const session = sessions[req.headers.authorization];
+  if (!session) {
+    res.status(403).send("session is invalid");
+    return;
+  }
+
+  const productId = req.params.id;
+
+  if (!products[productId]) {
+    res.status(404).send("Product not found");
+    return;
+  }
+
+  delete products[productId];
+
+  res.json(products);
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
